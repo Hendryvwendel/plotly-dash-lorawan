@@ -135,10 +135,10 @@ def update_graph(_n_intervals, selected_metric):
     # Zorg dat timestamps correct zijn
     df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-    # Filter: alleen de laatste 10 minuten tonen
+    # Bepaal tijdvenster: laatste 10 minuten als standaard x-as breedte,
+    # maar behoud alle data zodat oudere waarden nog te bekijken zijn.
     now = datetime.now()
     cutoff = now - timedelta(minutes=10)
-    df = df[df["timestamp"] >= cutoff]
 
     # Maak lange vorm voor meerdere series
     value_cols = [c for c in ("temperature", "humidity", "co2") if c in df.columns]
@@ -193,10 +193,11 @@ def update_graph(_n_intervals, selected_metric):
         if y_range and (y_range[1] - y_range[0]) < 0.1:
             y_range = default_ranges.get(metric_name)
         fig_m.update_layout(
+            xaxis_range=[cutoff, now],
             yaxis_autorange=False,
             yaxis_range=y_range,
             showlegend=True,
-            legend=dict(title="Device", orientation="v", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            legend=dict(title="Device", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
         )
         return fig_m
 
@@ -210,6 +211,7 @@ def update_graph(_n_intervals, selected_metric):
         if y_range and (y_range[1] - y_range[0]) < 0.1:
             y_range = default_ranges.get(selected_metric)
         fig_top.update_layout(
+            xaxis_range=[cutoff, now],
             yaxis_autorange=False,
             yaxis_range=y_range,
             showlegend=True,
